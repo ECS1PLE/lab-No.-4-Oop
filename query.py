@@ -23,19 +23,26 @@ class ScheduleClient:
 
         return data[group_number]
 
-    def print_schedule(self, schedule: dict) -> None:
-        print(f"\nРасписание группы {self.__group_number}:")
-        for _, day in schedule["days"].items():
+    def format_schedule(self, schedule: dict) -> str:
+        lines = [f"Расписание группы {self.__group_number}:"]
+
+        for day in schedule["days"].values():
+            lines.append(f"\n{day['name']}:")
+
             if not day["lessons"]:
-                print(f"\n{day['name']}: нет занятий")
+                lines.append("Нет занятий")
                 continue
 
-            print(f"\n{day['name']}:")
             for lesson in day["lessons"]:
-                print(
+                lines.append(
                     f"{lesson['start_time']}-{lesson['end_time']} "
                     f"{lesson['name']} (неделя {lesson['week']})"
                 )
+
+        return "\n".join(lines)
+
+    def print_schedule(self, schedule: dict) -> None:
+        print(self.format_schedule(schedule))
 
     def get_day_schedule(self, week_number: int) -> dict:
         day_index = self.__day_index
