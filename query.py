@@ -23,8 +23,7 @@ class ScheduleClient:
 
         return data[group_number]
 
-    def print_schedule(self) -> None:
-        schedule = self.get_schedule()
+    def print_schedule(self, schedule: dict) -> None:
         print(f"\nРасписание группы {self.__group_number}:")
         for _, day in schedule["days"].items():
             if not day["lessons"]:
@@ -38,12 +37,12 @@ class ScheduleClient:
                     f"{lesson['name']} (неделя {lesson['week']})"
                 )
 
-    def get_day_schedule(self) -> dict:
+    def get_day_schedule(self, week_number: int) -> dict:
         day_index = self.__day_index
         if day_index is None:
             raise ValueError("Укажите индекс дня недели")
 
-        days = self.get_schedule()["days"]
+        days = self.get_week_schedule(week_number)["days"]
         day_key = str(day_index)
 
         if day_key not in days:
@@ -51,7 +50,19 @@ class ScheduleClient:
 
         return days[day_key]
 
-if __name__ == "__main__":
-    group_number = input("Введите номер группы: ").strip()
-    client = ScheduleClient(group_number)
-    client.print_schedule()
+    def get_week_schedule(self, week_number: int) -> dict:
+        if week_number not in (1, 2, 3):
+            raise ValueError("Введите 1, 2 или 3")
+
+        schedule = self.get_schedule()
+        if week_number == 3:
+            return schedule
+
+        week = str(week_number)
+        for day in schedule["days"].values():
+            day["lessons"] = [
+                lesson for lesson in day["lessons"]
+                if lesson["week"] == week
+            ]
+
+        return schedule
