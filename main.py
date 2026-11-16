@@ -10,13 +10,10 @@ def main() -> None:
         client = ScheduleClient(group_number)
 
         try:
-            client.get_schedule()
+            client.print_schedule()
         except LookupError as error:
             print(error)
             continue
-
-        client.print_schedule()
-
 
 if __name__ == "__main__":
     main()
