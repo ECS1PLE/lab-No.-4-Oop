@@ -1,0 +1,1 @@
+API_PATH = "https://digital.etu.ru/api/mobile/schedule"
