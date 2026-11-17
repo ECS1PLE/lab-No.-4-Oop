@@ -1,17 +1,17 @@
 import argparse
-from cli import ScheduleCLI
+
+from cli import ScheduleConsole
 from bot import run_bot
 
 
 def run_cli() -> None:
-
     while True:
         group_number = input("Введите номер группы: ").strip()
         if not group_number:
             print("Введите номер группы, например 5353.")
             continue
 
-        ScheduleCLI(group_number).cli_mode()
+        ScheduleConsole(group_number).run()
 
 
 def main() -> None:

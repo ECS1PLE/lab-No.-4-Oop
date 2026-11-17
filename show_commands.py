@@ -1,9 +1,11 @@
 from const import HELP_COMMANDS
 
-class ShowCommands:
+
+class CommandHelp:
     @staticmethod
-    def show_commands() -> str:
-        str = 'Список доступных команд:\n'
-        for command, description in HELP_COMMANDS.items():
-            str += f"{command}: {description}\n"
-        return str
+    def format_text() -> str:
+        commands = "\n".join(
+            f"{command}: {description}"
+            for command, description in HELP_COMMANDS.items()
+        )
+        return f"Список доступных команд:\n{commands}\n"
