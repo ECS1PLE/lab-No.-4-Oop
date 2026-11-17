@@ -9,7 +9,8 @@ class ScheduleCommand:
     def parse(self) -> tuple[int | None, int, str]:
         parts = self.__command.split()
         if len(parts) != 3:
-            raise ValueError("Пример команды: /monday 1 5353")
+            command_name = parts[0].lower() if parts else "/monday"
+            raise ValueError(f"Пример команды: {command_name} 1 5353")
 
         command_name = parts[0].lower()
         day_index = DAY_COMMANDS.get(command_name)
@@ -46,6 +47,17 @@ class ScheduleCommand:
         day = client.get_today_schedule(week_number)
         schedule = {"days": {"today": day}}
         return client.format_schedule(schedule)
+
+    @staticmethod
+    def get_next_lesson(week_number: int, group_number: str) -> str:
+        client = ScheduleService(group_number)
+        start, lesson = client.get_next_lesson(week_number)
+        day_name = next(name for name, index in DAY_NAMES.items() if index == start.weekday())
+        return (
+            f"Ближайшая пара группы {group_number}:\n"
+            f"{day_name}, {start:%d.%m.%Y} (мск)\n\n"
+            f"{client.format_lesson_info(lesson)}"
+        )
 
     @staticmethod
     def get_lesson_info(

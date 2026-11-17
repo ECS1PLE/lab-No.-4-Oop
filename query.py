@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 import requests
@@ -86,6 +86,37 @@ class ScheduleService:
     def get_today_schedule(self, week_number: int) -> dict:
         today_index = datetime.now(ZoneInfo("Europe/Moscow")).weekday()
         return self.get_day_schedule(week_number, today_index)
+
+    def get_next_lesson(self, week_number: int) -> tuple[datetime, dict]:
+        if week_number not in (1, 2, 3):
+            raise ValueError("Введите 1, 2 или 3")
+
+        now = datetime.now(ZoneInfo("Europe/Moscow"))
+        days = self.get_schedule()["days"]
+
+        for offset in range(15):
+            date = now.date() + timedelta(days=offset)
+            lessons = days.get(str(date.weekday()), {}).get("lessons", [])
+
+            if week_number != 3:
+                weeks_passed = (now.weekday() + offset) // 7
+                active_week = str((week_number - 1 + weeks_passed) % 2 + 1)
+                lessons = [lesson for lesson in lessons if lesson["week"] == active_week]
+
+            next_lesson = None
+            for lesson in lessons:
+                start_time = time.fromisoformat(lesson["start_time"])
+                if offset == 0 and start_time <= now.time():
+                    continue
+
+                if next_lesson is None or start_time < next_lesson[0]:
+                    next_lesson = start_time, lesson
+
+            if next_lesson is not None:
+                start_time, lesson = next_lesson
+                return datetime.combine(date, start_time, tzinfo=now.tzinfo), lesson
+
+        raise LookupError("Ближайшая пара не найдена.")
 
     def get_lesson_info(self, week_number: int, day_index: int, lesson_name: str) -> dict:
         day_schedule = self.get_day_schedule(week_number, day_index)
