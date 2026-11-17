@@ -1,34 +1,33 @@
-from query import ScheduleClient
-from const import day_names
+import argparse
+from cli import ScheduleCLI
+from bot import run_bot
 
 
-def main() -> None:
+def run_cli() -> None:
+
     while True:
         group_number = input("Введите номер группы: ").strip()
         if not group_number:
             print("Введите номер группы, например 5353.")
             continue
 
-        week_input = input("Введите неделю (1, 2 или 3 для обеих): ").strip()
-        day_input = input("Введите день недели или нажмите Enter для всей недели: ").strip()
-        
-        try:
-            week_number = int(week_input)
-            if day_input:
-                day_index = day_names.get(day_input.capitalize())
-                if day_index is None:
-                    raise ValueError("Введите название дня недели, например понедельник.")
+        ScheduleCLI(group_number).cli_mode()
 
-                client = ScheduleClient(group_number, day_index=day_index)
-                day = client.get_day_schedule(week_number)
-                schedule = {"days": {str(day_index): day}}
-            else:
-                client = ScheduleClient(group_number)
-                schedule = client.get_week_schedule(week_number)
 
-            client.print_schedule(schedule)
-        except (ValueError, LookupError) as error:
-            print(error)
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--cli", action="store_true")
+    mode.add_argument("--bot", action="store_true")
+    args = parser.parse_args()
+
+    match args:
+        case argparse.Namespace(cli=True, bot=False):
+            run_cli()
+        case argparse.Namespace(cli=False, bot=True):
+            run_bot()
+        case _:
+            print("Выберите режим работы: --cli или --bot")
 
 
 if __name__ == "__main__":
