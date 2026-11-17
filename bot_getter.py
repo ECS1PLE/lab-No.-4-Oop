@@ -1,4 +1,4 @@
-from const import day_mapping
+from const import day_mapping, HELP_COMMANDS
 from query import ScheduleClient
 
 class DayCommand:
@@ -14,9 +14,10 @@ class DayCommand:
         week = parts[1]
         group_number = parts[2]
 
-        day_index = day_mapping.get(command_name)
-        if day_index is None:
-            raise ValueError("День недели не распознан. Используй /help.")
+        day_index = day_mapping.get(command_name, None)
+
+        if day_index is None and command_name not in HELP_COMMANDS.keys():
+            raise ValueError("Команда не распознана. Используй /help.")
 
         if week not in ("1", "2", "3"):
             raise ValueError("Укажи 1, 2 или 3 для обеих недель.")
@@ -24,7 +25,10 @@ class DayCommand:
         if len(group_number) != 4 or not group_number.isdigit():
             raise ValueError("Номер группы должен состоять из четырёх цифр.")
 
-        return day_index, int(week), group_number
+        if day_index is not None:
+            return day_index, int(week), group_number
+        else:
+            return None, int(week), group_number
 
     @staticmethod
     def get_schedule_bot(day_index: int, week_number: int, group_number: str) -> str:
@@ -33,4 +37,9 @@ class DayCommand:
         schedule = {"days": {str(day_index): day_schedule}}
         return client.format_schedule(schedule)
 
+    @staticmethod
+    def get_week_schedule_bot(week_number: int, group_number: str) -> str:
+        client = ScheduleClient(group_number)
+        week_schedule = client.get_week_schedule(week_number)
+        return client.format_schedule(week_schedule)
     

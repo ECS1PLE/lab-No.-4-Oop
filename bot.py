@@ -30,12 +30,17 @@ def day_schedule(message):
         bot.reply_to(message, schedule)
     except ValueError as e:
         bot.reply_to(message, str(e))
-    except LookupError as e:
-        bot.reply_to(message, str(e))
-    except Exception as e:
-        bot.reply_to(message, f"Произошла ошибка: {str(e)}")
+
+@bot.message_handler(commands=["week"])
+def week_schedule(message):
+    try:
+        day_command = DayCommand(message.text)
+        _, week_number, group_number = day_command.parse()
+        schedule = DayCommand.get_week_schedule_bot(week_number, group_number)
+        bot.reply_to(message, schedule)
+    except ValueError as e:
+        bot.reply_to(message, str(e)) 
 
 def run_bot():
     bot.infinity_polling()
     print("Бот запущен. Ожидание сообщений...")
-
