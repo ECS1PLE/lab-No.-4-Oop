@@ -52,8 +52,8 @@ class ScheduleCommand:
         day_index: int, week_number: int, group_number: str, lesson_name: str
     ) -> str:
         client = ScheduleService(group_number)
-        lesson = client.get_lesson_info(week_number, day_index, lesson_name)
-        return client.format_lesson_info(lesson)
+        lessons = client.get_lesson_info(week_number, day_index, lesson_name)
+        return "\n\n".join(client.format_lesson_info(lesson) for lesson in lessons)
 
     def parse_lesson(self) -> tuple[int, int, str, str]:
         parts = self.__command.split(maxsplit=4)

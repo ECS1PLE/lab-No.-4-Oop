@@ -91,14 +91,19 @@ class ScheduleService:
         day_schedule = self.get_day_schedule(week_number, day_index)
         lessons = day_schedule["lessons"]
 
+        res = []
+
         for lesson in lessons:
             if lesson["name"] == lesson_name:
-                return lesson
+                res.append(lesson)
 
-        raise ValueError(
-            f"Занятие '{lesson_name}' не найдено "
-            f"в расписании на день с индексом {day_index}"
-        )
+        if not res:
+            raise ValueError(
+                f"Занятие '{lesson_name}' не найдено "
+                f"в расписании на день с индексом {day_index}"
+            )
+
+        return res
 
     @staticmethod
     def format_lesson_info(lesson_info: dict) -> str:
